@@ -16,40 +16,63 @@ function showError(input, message) {
   formControl.querySelector("small").innerText = message;
 }
 
-function validateEmail(email) {
+function checkEmailValidation(email) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+  if (re.test(String(email.value.trim()).toLowerCase())) {
+    showSuccess(email);
+  } else {
+    showError(email, "Please enter a valid E-mail");
+    return;
+  }
+}
+
+function checkRequired(inputArray) {
+  inputArray.forEach((input) => {
+    if (input.value.trim() === "") {
+      showError(input, `${getInputFieldName(input)} is required`);
+      return;
+    } else {
+      showSuccess(input);
+    }
+  });
+}
+
+function checkInputLength(input, min, max) {
+  if (input.value.length < min) {
+    showError(
+      input,
+      `${getInputFieldName(input)} must be at least ${min} characters.`
+    );
+    return;
+  } else if (input.value.length > max) {
+    showError(
+      input,
+      `${getInputFieldName(input)} can be maximum ${max} characters`
+    );
+    return;
+  } else {
+    showSuccess(input);
+  }
+}
+
+function checkPasswordsMatch(input1, input2) {
+  if (input1.value !== input2.value) {
+    showError(password2, "The passwords do not match");
+  }
+}
+
+function getInputFieldName(input) {
+  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
 }
 
 // Eventlisteners
 form.addEventListener("submit", (evt) => {
   evt.preventDefault();
 
-  if (username.value === "") {
-    showError(username, "Please enter a username");
-  } else {
-    showSuccess(username);
-  }
-
-  if (email.value === "") {
-    showError(email, "Please enter an E-mail");
-  } else if (!validateEmail(email.value)) {
-    showError(email, "Please enter a valid E-mail");
-  } else {
-    showSuccess(email);
-  }
-
-  if (password.value === "") {
-    showError(password, "Please enter a password");
-  } else {
-    showSuccess(password);
-  }
-
-  if (password2.value === "") {
-    showError(password2, "Please reenter the password");
-  } else if (password.value !== password2.value) {
-    showError(password2, "The passwords do not match");
-  } else {
-    showSuccess(password2);
-  }
+  checkRequired([username, email, password, password2]);
+  checkInputLength(username, 3, 15);
+  checkInputLength(password, 6, 20);
+  checkInputLength(password2, 6, 20);
+  checkEmailValidation(email);
+  checkPasswordsMatch(password, password2);
 });
